@@ -46,6 +46,7 @@ func main() {
 		fmt.Printf("%d. %s\n", i+1, filteredFile.Name)
 	}
 
+selection:
 	// wait for user input
 	var selected int
 	fmt.Print("Please enter the number of your choice: ")
@@ -54,7 +55,7 @@ func main() {
 	// check if the choice is valid
 	if selected < 1 || selected > len(filteredFiles) {
 		fmt.Println("Error: invalid choice")
-		return
+		goto selection
 	}
 
 	// download and save the file
