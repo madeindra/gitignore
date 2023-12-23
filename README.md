@@ -12,14 +12,20 @@ All .gitignore files are from [github/gitignore](https://github.com/github/gitig
 go install github.com/madeindra/gitignore
 ```
 
-2. Run the program
+2. Run the program with the name as argument (will continue to step 3 if the argument is not valid)
+
+```
+gitignore go
+```
+
+3. Or for the program without argument to get the list of available .gitignore files
 
 ```
 gitignore
 ```
 
-3. Wait for the list of available .gitignore files to be shown
+4. Wait for the list of available .gitignore files to be shown
 
-4. Enter the number of the .gitignore file you want to create
+5. Enter the number of the .gitignore file you want to create
 
-5. Wait for the .gitignore file to be created
+6. Wait for the .gitignore file to be created

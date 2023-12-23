@@ -50,6 +50,7 @@ func main() {
 	}
 
 	// if the argument is 1, check if the file exists on the list
+	found := true
 	if flag.NArg() == 1 {
 		// check if the file exists on the list
 		for _, filteredFile := range filteredFiles {
@@ -65,6 +66,8 @@ func main() {
 				return
 			}
 		}
+
+		found = false
 	}
 
 	// print the list of files
@@ -72,6 +75,11 @@ func main() {
 	for i, filteredFile := range filteredFiles {
 		// print the index and the name of the file
 		fmt.Printf("%d. %s\n", i+1, filteredFile.Name)
+	}
+
+	// if the file is not found, print prompt
+	if !found {
+		fmt.Printf("\nGitignore file for %v not found\n", flag.Arg(0))
 	}
 
 selection:
