@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,15 @@ import (
 const contentURL = "https://api.github.com/repos/github/gitignore/contents"
 
 func main() {
+	// parse flags
+	flag.Parse()
+
+	// check if there are too many arguments
+	if flag.NArg() > 1 {
+		fmt.Println("Error: too many arguments")
+		return
+	}
+
 	// get the latest list of files
 	files, err := getList()
 	if err != nil {
@@ -37,6 +47,24 @@ func main() {
 	if len(filteredFiles) == 0 {
 		fmt.Println("Error: cannot get list of gitignore files")
 		return
+	}
+
+	// if the argument is 1, check if the file exists on the list
+	if flag.NArg() == 1 {
+		// check if the file exists on the list
+		for _, filteredFile := range filteredFiles {
+			if strings.EqualFold(strings.TrimSpace(filteredFile.Name), strings.TrimSpace(flag.Arg(0))) {
+				// download and save the file
+				if err := downloadFile(filteredFile); err != nil {
+					fmt.Println("Error downloading file:", err)
+					return
+				}
+
+				// print success message
+				fmt.Printf("Successfully downloaded .gitignore for %v", filteredFile.Name)
+				return
+			}
+		}
 	}
 
 	// print the list of files
