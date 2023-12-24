@@ -30,29 +30,12 @@ func main() {
 		return
 	}
 
-	var filteredFiles []File
-	for _, file := range files {
-		// if the file is a gitignore file, add it to the list
-		if file.Type == "file" && strings.HasSuffix(file.Name, ".gitignore") {
-			// remove the .gitignore extension and add it to the list
-			filteredFiles = append(filteredFiles, File{
-				Name:        strings.TrimSuffix(file.Name, ".gitignore"),
-				Type:        file.Type,
-				DownloadURL: file.DownloadURL,
-			})
-		}
-	}
-
-	// if no gitignore files found, exit
-	if len(filteredFiles) == 0 {
-		fmt.Println("Error: cannot get list of gitignore files")
-		return
-	}
+	// filter the list of files
+	filteredFiles := filterList(files)
 
 	// if the argument is 1, check if the file exists on the list
-	found := true
+	found := false
 	if flag.NArg() == 1 {
-		// check if the file exists on the list
 		for _, filteredFile := range filteredFiles {
 			if strings.EqualFold(strings.TrimSpace(filteredFile.Name), strings.TrimSpace(flag.Arg(0))) {
 				// download and save the file
@@ -62,27 +45,24 @@ func main() {
 				}
 
 				// print success message
-				fmt.Printf("Successfully downloaded .gitignore for %v", filteredFile.Name)
+				fmt.Printf("Successfully downloaded .gitignore for \"%v\"", filteredFile.Name)
 				return
 			}
 		}
-
-		found = false
 	}
 
 	// print the list of files
-	fmt.Println("Available gitignore file:")
+	fmt.Println("Available gitignore files:")
 	for i, filteredFile := range filteredFiles {
 		// print the index and the name of the file
 		fmt.Printf("%d. %s\n", i+1, filteredFile.Name)
 	}
 
-	// if the file is not found, print prompt
+	// when the argument is 1, the file was not found, warn the user
 	if !found {
-		fmt.Printf("\nGitignore file for %v not found\n", flag.Arg(0))
+		fmt.Printf("\nWarning: gitignore file for \"%v\" not found\n", flag.Arg(0))
 	}
 
-selection:
 	// wait for user input
 	var selected int
 	fmt.Print("Please enter the number of your choice: ")
@@ -91,7 +71,7 @@ selection:
 	// check if the choice is valid
 	if selected < 1 || selected > len(filteredFiles) {
 		fmt.Println("Error: invalid choice")
-		goto selection
+		return
 	}
 
 	// download and save the file
@@ -104,6 +84,7 @@ selection:
 	fmt.Printf("Successfully downloaded .gitignore for %v", filteredFiles[selected-1].Name)
 }
 
+// struct for github api response
 type File struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
@@ -129,6 +110,19 @@ func getList() ([]File, error) {
 	}
 
 	return files, nil
+}
+
+func filterList(files []File) []File {
+	// filter the list of files
+	var filteredFiles []File
+	for _, file := range files {
+		// only include files that are not directories and end with .gitignore
+		if file.Type != "dir" && strings.HasSuffix(file.Name, ".gitignore") {
+			filteredFiles = append(filteredFiles, file)
+		}
+	}
+
+	return filteredFiles
 }
 
 func downloadFile(file File) error {
