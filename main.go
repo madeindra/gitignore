@@ -34,8 +34,9 @@ func main() {
 	filteredFiles := filterList(files)
 
 	// if the argument is 1, check if the file exists on the list
-	found := false
+	usingParam := false
 	if flag.NArg() == 1 {
+		usingParam = true
 		for _, filteredFile := range filteredFiles {
 			if strings.EqualFold(strings.TrimSpace(filteredFile.Name), strings.TrimSpace(flag.Arg(0))) {
 				// download and save the file
@@ -59,7 +60,7 @@ func main() {
 	}
 
 	// when the argument is 1, the file was not found, warn the user
-	if !found {
+	if usingParam {
 		fmt.Printf("\nWarning: gitignore file for \"%v\" not found\n", flag.Arg(0))
 	}
 
@@ -118,6 +119,8 @@ func filterList(files []File) []File {
 	for _, file := range files {
 		// only include files that are not directories and end with .gitignore
 		if file.Type != "dir" && strings.HasSuffix(file.Name, ".gitignore") {
+			// remove the .gitignore extension
+			file.Name = strings.TrimSuffix(file.Name, ".gitignore")
 			filteredFiles = append(filteredFiles, file)
 		}
 	}
